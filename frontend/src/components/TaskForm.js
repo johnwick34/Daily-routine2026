@@ -1,0 +1,97 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import '../styles/Glassmorphism.css';
+
+const TaskForm = ({ refreshTasks }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    details: '',
+    dateTime: '',
+    duration: '',
+    location: '',
+    priority: 'Medium', // Default Priority
+    isRecurring: false,
+    emailReminder: false
+  });
+
+  const { title, details, dateTime, duration, location, priority, isRecurring, emailReminder } = formData;
+
+  const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData({ ...formData, [e.target.name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.post('/api/tasks', formData, config);
+      
+      // Clear form and refresh list
+      setFormData({
+        title: '', 
+        details: '', 
+        dateTime: '', 
+        duration: '', 
+        location: '', 
+        priority: 'Medium', // Reset to Medium
+        isRecurring: false, 
+        emailReminder: false
+      });
+      refreshTasks();
+      
+    } catch (error) {
+      alert('Error adding task');
+      console.error(error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        <input name="title" value={title} onChange={handleChange} placeholder="Task Title" className="glass-input" required />
+        
+        {/* --- NEW PRIORITY DROPDOWN --- */}
+        <select name="priority" value={priority} onChange={handleChange} className="glass-input" style={{ cursor: 'pointer' }}>
+          <option value="Low" style={{color: 'black'}}>🟢 Low Priority</option>
+          <option value="Medium" style={{color: 'black'}}>🔵 Medium Priority</option>
+          <option value="High" style={{color: 'black'}}>🟠 High Priority</option>
+          <option value="Very Important" style={{color: 'black'}}>🚨 Very Important</option>
+        </select>
+      </div>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        <input type="datetime-local" name="dateTime" value={dateTime} onChange={handleChange} className="glass-input" required />
+        <input type="number" name="duration" value={duration} onChange={handleChange} placeholder="Duration (mins)" className="glass-input" required />
+      </div>
+
+      <input name="location" value={location} onChange={handleChange} placeholder="Location (Optional)" className="glass-input" />
+
+      <textarea name="details" value={details} onChange={handleChange} placeholder="Details..." className="glass-input" style={{ height: '80px', resize: 'none' }}></textarea>
+
+      <div style={{ display: 'flex', gap: '20px', margin: '15px 0', alignItems: 'center', fontSize: '0.9rem' }}>
+        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+          <input type="checkbox" name="isRecurring" checked={isRecurring} onChange={handleChange} style={{ marginRight: '8px', transform: 'scale(1.2)' }} />
+          Repeat this month
+        </label>
+        
+        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+          <input type="checkbox" name="emailReminder" checked={emailReminder} onChange={handleChange} style={{ marginRight: '8px', transform: 'scale(1.2)' }} />
+          Email Reminder (10m prior)
+        </label>
+      </div>
+
+      <button type="submit" className="glass-button">Add Task to Routine</button>
+    </form>
+  );
+};
+
+export default TaskForm;

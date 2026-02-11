@@ -1,0 +1,122 @@
+/* frontend/src/styles/Glassmorphism.css */
+
+/* --- 1. The Main Glass Card (Login/Register/Profile Containers) --- */
+.glass-container {
+  /* Ultra-realistic Frosted Glass Effect */
+  background: rgba(255, 255, 255, 0.1); 
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  /* Subtle white border to simulate light hitting the edge */
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.4); /* Highlights top edge */
+  border-left: 1px solid rgba(255, 255, 255, 0.4); /* Highlights left edge */
+  
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 480px; 
+  margin: 40px auto; 
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect for the main card */
+.glass-container:hover {
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.35);
+  transform: translateY(-2px);
+}
+
+/* --- 2. Dashboard Task Cards (New Addition for Profile) --- */
+.glass-task-card {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-task-card:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(5px); /* Slight slide to right on hover */
+  border-left: 4px solid #fff; /* accent indicator */
+}
+
+/* --- 3. Inputs (Modern & Clean) --- */
+.glass-input {
+  width: 100%;
+  padding: 14px 18px;
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05); /* Very transparent */
+  color: white;
+  font-size: 16px;
+  outline: none;
+  font-family: 'Poppins', sans-serif;
+  transition: 0.3s ease;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* --- 4. Buttons (High Energy Gradient) --- */
+.glass-button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 12px;
+  
+  /* White to slight off-white gradient for depth */
+  background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%);
+  color: #5a4b81; /* Dark purple text for contrast */
+  
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.glass-button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+  background: white;
+}
+
+.glass-button:active {
+  transform: translateY(-1px);
+}
+
+/* --- 5. Links --- */
+.glass-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+  margin-top: 20px;
+  display: block;
+  text-align: center;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.glass-link:hover {
+  color: white;
+  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  text-decoration: none;
+}
