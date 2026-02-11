@@ -120,3 +120,37 @@
   text-shadow: 0 0 10px rgba(255,255,255,0.5);
   text-decoration: none;
 }
+
+/* src/styles/Glassmorphism.css */
+
+/* ... (your existing code) ... */
+
+/* --- 📱 MOBILE OPTIMIZATIONS --- */
+@media (max-width: 600px) {
+  /* Force the container to stack items vertically */
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between stacked items */
+  }
+
+  /* Make all inputs full width on mobile */
+  .glass-input, select {
+    width: 100% !important;
+    min-width: 100%;
+  }
+}
+
+/* --- 🗓 DATE PICKER FIX --- */
+input[type="datetime-local"] {
+  width: 100%;
+  position: relative;
+}
+
+/* This targets the little calendar icon inside the input */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* 💡 Turns the black icon WHITE so it matches your dark theme */
+  opacity: 0.6;      /* Makes it subtle */
+  cursor: pointer;
+  padding: 5px;      /* Gives it some space to breathe */
+}
