@@ -19,7 +19,7 @@ import './styles/Glassmorphism.css';
 // =======================================================
 // This tells React: "If we are online, use the Render URL. If on laptop, use localhost."
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend-name.onrender.com' // <--- ⚠️ STEP 3: PASTE YOUR RENDER BACKEND URL HERE LATER!
+  ? 'https://routine-app-backend-ba5l.onrender.com // <--- ⚠️ STEP 3: PASTE YOUR RENDER BACKEND URL HERE LATER!
   : 'http://localhost:5000'; 
 
 axios.defaults.baseURL = API_URL;
