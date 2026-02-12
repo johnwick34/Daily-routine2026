@@ -1,102 +1,146 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import '../styles/Glassmorphism.css'; // Ensure this is imported
+import '../styles/Glassmorphism.css';
 
-const TaskList = ({ tasks, refreshTasks, refreshProfile }) => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+const TaskList = ({ tasks, refreshTasks }) => {
+  // 1. State for the currently selected date (Default: Today)
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // --- 🗓 HELPER FUNCTIONS ---
+
+  // Check if two dates are the same day (ignoring time)
+  const isSameDay = (d1, d2) => {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  };
+
+  // Format date for the header (e.g., "Thursday, Feb 12")
+  const formatDateHeader = (date) => {
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  // Change day (e.g., +1 for tomorrow, -1 for yesterday)
+  const changeDate = (days) => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() + days);
+    setSelectedDate(newDate);
+  };
+
+  // --- 🗑 TASK ACTIONS ---
 
   const deleteTask = async (id) => {
-    if(!window.confirm("Delete this task?")) return;
+    if (!window.confirm('Delete this task?')) return;
+    
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+    
     try {
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       await axios.delete(`/api/tasks/${id}`, config);
       refreshTasks();
     } catch (error) {
-      console.error('Error deleting task', error);
+      alert('Error deleting task');
     }
   };
 
-  const completeTask = async (task) => {
-    if (task.isCompleted) return; 
+  const toggleComplete = async (task) => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
 
     try {
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.put(`/api/tasks/${task._id}`, { isCompleted: true }, config);
-      refreshTasks();   
-      refreshProfile(); 
+      await axios.put(`/api/tasks/${task._id}`, { isCompleted: !task.isCompleted }, config);
+      refreshTasks();
     } catch (error) {
-      console.error('Error completing task', error);
+      alert('Error updating task');
     }
   };
 
-  // Helper to get Color based on Priority
-  const getPriorityColor = (p) => {
-    switch(p) {
-      case 'Very Important': return '#ff4757'; // Bright Red
-      case 'High': return '#ffa502'; // Orange
-      case 'Low': return '#2ed573'; // Green
-      default: return '#fff'; // White (Medium)
-    }
-  };
-
-  if (!tasks.length) return <p style={{textAlign:'center', opacity: 0.7}}>No tasks scheduled. Time to relax! 🏝️</p>;
+  // --- 🔍 FILTERING LOGIC ---
+  
+  // Filter tasks to show ONLY the ones for selectedDate
+  const dailyTasks = tasks.filter((task) => {
+    if (!task.dateTime) return false;
+    const taskDate = new Date(task.dateTime); // Convert UTC string to Date object
+    return isSameDay(taskDate, selectedDate);
+  });
 
   return (
-    <div>
-      {tasks.map((task) => (
-        <div key={task._id} className="glass-task-card" style={{ 
-            borderLeft: `5px solid ${getPriorityColor(task.priority)}` // Dynamic Border Color
-        }}>
-          
-          {/* Checkbox */}
-          <div onClick={() => completeTask(task)} style={{ 
-              cursor: 'pointer', 
-              marginRight: '15px', 
-              fontSize: '1.5rem',
-              color: task.isCompleted ? '#2ed573' : 'rgba(255,255,255,0.5)',
-              transition: '0.2s'
-            }}>
-            {task.isCompleted ? '☑' : '☐'}
-          </div>
+    <div className="task-list-container">
+      
+      {/* 📅 DATE NAVIGATION HEADER */}
+      <div className="date-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '15px' }}>
+        <button onClick={() => changeDate(-1)} className="glass-button-small">
+           ◀
+        </button>
+        
+        <h3 style={{ margin: 0, color: 'white', fontSize: '1.2rem' }}>
+          {isSameDay(selectedDate, new Date()) ? 'Today, ' : ''} 
+          {formatDateHeader(selectedDate)}
+        </h3>
+        
+        <button onClick={() => changeDate(1)} className="glass-button-small">
+           ▶ 
+        </button>
+      </div>
 
-          {/* Task Info */}
-          <div style={{ flexGrow: 1, opacity: task.isCompleted ? 0.5 : 1 }}>
-            <h4 style={{ margin: 0, fontSize: '1.1rem', textDecoration: task.isCompleted ? 'line-through' : 'none' }}>
-                {task.priority === 'Very Important' && '🚨 '} 
-                {task.priority === 'High' && '⚡ '}
-                {task.title} 
-                <span style={{fontSize: '0.8rem', fontWeight: '400', opacity: 0.8, marginLeft: '10px'}}>
-                  ({task.duration} mins)
-                </span>
-            </h4>
-            
-            <p style={{ margin: '5px 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>
-                📅 {new Date(task.dateTime).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})} 
-                <span style={{ margin: '0 8px' }}>|</span> 
-                📍 {task.location || 'Home'}
-            </p>
-            
-            {/* Priority Badge */}
-            <span style={{ 
-              fontSize: '0.75rem', 
-              padding: '2px 8px', 
-              borderRadius: '4px', 
-              background: getPriorityColor(task.priority),
-              color: task.priority === 'Medium' ? '#333' : 'white',
-              fontWeight: 'bold'
-            }}>
-              {task.priority || 'Medium'}
-            </span>
-          </div>
-
-          {/* Delete Button */}
-          <button onClick={() => deleteTask(task._id)} style={{
-            background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', marginLeft: '10px', opacity: 0.7
-          }}>
-            🗑️
-          </button>
+      {/* 📋 THE LIST */}
+      {dailyTasks.length === 0 ? (
+        <div style={{ textAlign: 'center', color: '#ccc', padding: '20px' }}>
+          <h4>No tasks for this day! 🌴</h4>
+          <p>Enjoy your free time or add a new task.</p>
         </div>
-      ))}
+      ) : (
+        dailyTasks.map((task) => (
+          <div 
+            key={task._id} 
+            className={`glass-card ${task.isCompleted ? 'completed' : ''}`}
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '10px',
+              padding: '15px',
+              borderLeft: `5px solid ${
+                task.priority === 'Very Important' ? '#ff6b6b' : 
+                task.priority === 'High' ? '#ffa502' : '#2ed573'
+              }`
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <h4 style={{ margin: '0 0 5px 0', textDecoration: task.isCompleted ? 'line-through' : 'none' }}>
+                {task.text}
+              </h4>
+              <small style={{ color: '#ddd' }}>
+                ⏰ {new Date(task.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+                {task.location && ` • 📍 ${task.location}`}
+              </small>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => toggleComplete(task)}
+                className="action-btn"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+              >
+                {task.isCompleted ? '↩️' : '✅'}
+              </button>
+              <button 
+                onClick={() => deleteTask(task._id)}
+                className="action-btn"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };
